@@ -1,0 +1,177 @@
+{
+  "pluginAlias": "ComelitPeoplePlatform",
+  "pluginType": "platform",
+  "singular": true,
+  "headerDisplay": "Plugin Homebridge pour le système d'interphonie Comelit Group. Contrôlez vos serrures, sonnettes et caméras via l'API Comelit People.",
+  "footerDisplay": "🔐 Deux méthodes d'authentification : (1) Email + Mot de passe (recommandé) ou (2) Token manuel + Device UUID + Apartment ID",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "title": "Nom",
+        "type": "string",
+        "default": "Comelit People",
+        "required": true,
+        "description": "Nom de la plateforme dans Homebridge"
+      },
+      "email": {
+        "title": "Email Comelit",
+        "type": "string",
+        "description": "Votre email de connexion Comelit (méthode recommandée). Si renseigné, le token sera automatiquement récupéré."
+      },
+      "password": {
+        "title": "Mot de passe Comelit",
+        "type": "string",
+        "description": "Votre mot de passe Comelit. Utilisé uniquement si email est renseigné."
+      },
+      "token": {
+        "title": "CCS Token (optionnel)",
+        "type": "string",
+        "description": "Token d'authentification Comelit (ccstoken). Ignoré si email/password sont fournis."
+      },
+      "deviceUuid": {
+        "title": "Device UUID (optionnel)",
+        "type": "string",
+        "description": "UUID du dispositif Comelit. Ignoré si email/password sont fournis."
+      },
+      "apartmentId": {
+        "title": "Apartment ID (optionnel)",
+        "type": "string",
+        "description": "Identifiant de l'appartement. Ignoré si email/password sont fournis."
+      },
+      "baseURL": {
+        "title": "URL de base API",
+        "type": "string",
+        "default": "https://api.comelitgroup.com/servicerest",
+        "description": "URL de base de l'API Comelit Group"
+      },
+      "pollInterval": {
+        "title": "Intervalle de polling (ms)",
+        "type": "integer",
+        "default": 5000,
+        "minimum": 1000,
+        "description": "Intervalle de vérification des événements de sonnette (en millisecondes)"
+      },
+      "lockIds": {
+        "title": "IDs des serrures",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Liste des IDs de serrures à exposer (ex: ['SB100001.1']). Laissez vide pour détecter automatiquement."
+      },
+      "enableCamera": {
+        "title": "Activer la caméra",
+        "type": "boolean",
+        "default": true,
+        "description": "Activer le support de streaming vidéo pour la sonnette/caméra"
+      },
+      "videoConfig": {
+        "title": "Configuration vidéo",
+        "type": "object",
+        "properties": {
+          "maxWidth": {
+            "title": "Largeur maximale",
+            "type": "integer",
+            "default": 1280,
+            "minimum": 320,
+            "maximum": 1920
+          },
+          "maxHeight": {
+            "title": "Hauteur maximale",
+            "type": "integer",
+            "default": 720,
+            "minimum": 240,
+            "maximum": 1080
+          },
+          "maxFPS": {
+            "title": "FPS maximum",
+            "type": "integer",
+            "default": 30,
+            "minimum": 10,
+            "maximum": 60
+          },
+          "maxBitrate": {
+            "title": "Bitrate maximum (kbps)",
+            "type": "integer",
+            "default": 1000,
+            "minimum": 300,
+            "maximum": 4000
+          },
+          "forceMax": {
+            "title": "Forcer les valeurs maximales",
+            "type": "boolean",
+            "default": false
+          },
+          "vcodec": {
+            "title": "Codec vidéo",
+            "type": "string",
+            "default": "libx264",
+            "enum": ["libx264", "copy"]
+          },
+          "audio": {
+            "title": "Activer l'audio",
+            "type": "boolean",
+            "default": true
+          }
+        }
+      }
+    }
+  },
+  "layout": [
+    {
+      "type": "fieldset",
+      "title": "🔐 Authentification Comelit",
+      "expandable": false,
+      "description": "Choisissez votre méthode d'authentification",
+      "items": [
+        "name",
+        {
+          "type": "help",
+          "helpvalue": "<h5>Méthode 1 : Email + Mot de passe (Recommandé)</h5><p>Le plugin récupérera automatiquement votre token et vos identifiants.</p>"
+        },
+        "email",
+        "password",
+        {
+          "type": "help",
+          "helpvalue": "<h5>Méthode 2 : Configuration manuelle</h5><p>Utilisez cette méthode uniquement si vous avez déjà un token.</p>"
+        },
+        "token",
+        "deviceUuid",
+        "apartmentId",
+        "baseURL"
+      ]
+    },
+    {
+      "type": "fieldset",
+      "title": "Configuration des dispositifs",
+      "expandable": true,
+      "items": [
+        "pollInterval",
+        {
+          "key": "lockIds",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "placeholder": "SB100001.1"
+          }
+        },
+        "enableCamera"
+      ]
+    },
+    {
+      "type": "fieldset",
+      "title": "Configuration vidéo avancée",
+      "expandable": true,
+      "items": [
+        "videoConfig.maxWidth",
+        "videoConfig.maxHeight",
+        "videoConfig.maxFPS",
+        "videoConfig.maxBitrate",
+        "videoConfig.forceMax",
+        "videoConfig.vcodec",
+        "videoConfig.audio"
+      ]
+    }
+  ]
+}
