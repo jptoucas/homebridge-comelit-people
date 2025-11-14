@@ -1,0 +1,22 @@
+# Source TypeScript (on garde dist/)
+src/
+tsconfig.json
+*.tsbuildinfo
+
+# Development only
+.vscode/
+.idea/
+.DS_Store
+.git/
+.gitignore
+
+# Docs (on garde README.md)
+*.md
+!README.md
+
+# Tests et logs
+*.log
+test/
+tests/
+*.test.ts
+*.spec.ts
