@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Build artifacts
+*.tsbuildinfo
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Temp files
+*.tmp
+*.tgz
+
+# Keep compiled dist/ for GitHub installation
+# dist/ is needed for npm install from GitHub
