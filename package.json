@@ -5,6 +5,11 @@
   "description": "Plugin Homebridge pour le système d'interphonie Comelit - Contrôle de serrure, sonnette et caméra via l'API Comelit Group",
   "license": "MIT",
   "main": "dist/index.js",
+  "files": [
+    "dist/",
+    "config.schema.json",
+    "webrtc-proxy/"
+  ],
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
