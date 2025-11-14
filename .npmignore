@@ -16,6 +16,7 @@ tsconfig.json
 
 # Tests et logs
 *.log
+*.tgz
 test/
 tests/
 *.test.ts
