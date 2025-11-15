@@ -7,15 +7,13 @@ export declare const PLUGIN_NAME = "homebridge-comelit-people";
 export interface ComelitPlatformConfig {
     platform: string;
     name?: string;
-    email?: string;
-    password?: string;
-    token?: string;
-    deviceUuid?: string;
-    apartmentId?: string;
+    email: string;
+    password: string;
     baseURL?: string;
     pollInterval?: number;
     lockIds?: string[];
     enableCamera?: boolean;
+    ignoredDevices?: string;
     videoConfig?: {
         maxWidth?: number;
         maxHeight?: number;
@@ -32,18 +30,5 @@ export interface ComelitPlatformConfig {
         expirySeconds: number;
     };
 }
-export declare const DEFAULT_CONFIG: {
-    baseURL: string;
-    pollInterval: number;
-    enableCamera: boolean;
-    videoConfig: {
-        maxWidth: number;
-        maxHeight: number;
-        maxFPS: number;
-        maxBitrate: number;
-        forceMax: boolean;
-        vcodec: string;
-        audio: boolean;
-    };
-};
+export declare const DEFAULT_CONFIG: Partial<ComelitPlatformConfig>;
 //# sourceMappingURL=settings.d.ts.map

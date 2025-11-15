@@ -44,44 +44,34 @@ class ComelitPlatform {
      */
     async initializeAuthentication() {
         try {
+            if (!this.config.email || !this.config.password) {
+                throw new Error('❌ Configuration invalide: email et password sont obligatoires');
+            }
             let token;
             let deviceUuid;
             let apartmentId;
-            // Méthode 1: Authentification par email/password
-            if (this.config.email && this.config.password) {
-                this.log.info('🔐 Authentification par email/password...');
-                // Vérifier si le cache est valide
-                const cached = this.config._cachedCredentials;
-                if (cached && !(0, auth_1.isTokenExpired)(cached.expirySeconds)) {
-                    this.log.info('✅ Utilisation du token en cache (valide)');
-                    token = cached.token;
-                    deviceUuid = cached.deviceUuid;
-                    apartmentId = cached.apartmentId;
-                }
-                else {
-                    // Authentifier et récupérer les credentials
-                    this.log.info('🔄 Récupération d\'un nouveau token...');
-                    const credentials = await (0, auth_1.authenticateWithComelit)(this.config.email, this.config.password, this.config.baseURL || settings_1.DEFAULT_CONFIG.baseURL);
-                    token = credentials.token;
-                    deviceUuid = credentials.deviceUuid;
-                    apartmentId = credentials.apartmentId;
-                    // Sauvegarder en cache
-                    this.config._cachedCredentials = credentials;
-                    this.log.info(`✅ Authentification réussie (token valide jusqu'au ${new Date(credentials.expirySeconds * 1000).toLocaleString()})`);
-                    this.log.info(`📋 Device UUID: ${deviceUuid}`);
-                    this.log.info(`📋 Apartment ID: ${apartmentId}`);
-                }
+            this.log.info('🔐 Authentification avec email/password...');
+            // Vérifier si le cache est valide
+            const cached = this.config._cachedCredentials;
+            if (cached && !(0, auth_1.isTokenExpired)(cached.expirySeconds)) {
+                this.log.info('✅ Utilisation du token en cache (valide)');
+                token = cached.token;
+                deviceUuid = cached.deviceUuid;
+                apartmentId = cached.apartmentId;
             }
-            // Méthode 2: Configuration manuelle
-            else if (this.config.token && this.config.deviceUuid && this.config.apartmentId) {
-                this.log.info('🔐 Utilisation des credentials manuels');
-                token = this.config.token;
-                deviceUuid = this.config.deviceUuid;
-                apartmentId = this.config.apartmentId;
-            }
-            // Erreur: aucune méthode configurée
             else {
-                throw new Error('Configuration incomplète ! Veuillez configurer soit (email + password) soit (token + deviceUuid + apartmentId)');
+                // Authentifier et récupérer les credentials
+                this.log.info('🔄 Récupération d\'un nouveau token...');
+                const credentials = await (0, auth_1.authenticateWithComelit)(this.config.email, this.config.password, this.config.baseURL || settings_1.DEFAULT_CONFIG.baseURL);
+                token = credentials.token;
+                deviceUuid = credentials.deviceUuid;
+                apartmentId = credentials.apartmentId;
+                // Sauvegarder en cache
+                this.config._cachedCredentials = credentials;
+                const expiryDate = new Date(credentials.expirySeconds * 1000).toLocaleDateString('fr-FR');
+                this.log.info(`✅ Authentification réussie (token valide jusqu'au ${expiryDate})`);
+                this.log.debug(`📋 Device UUID: ${deviceUuid}`);
+                this.log.debug(`📋 Apartment ID: ${apartmentId}`);
             }
             // Initialiser l'API Comelit avec les credentials
             this.comelitAPI = new api_1.ComelitAPI(this.config.baseURL || settings_1.DEFAULT_CONFIG.baseURL, token, deviceUuid, apartmentId);
@@ -123,11 +113,25 @@ class ComelitPlatform {
             // Découvrir les dispositifs
             const devices = await this.comelitAPI.discoverDevices();
             this.log.info(`${devices.length} dispositif(s) découvert(s)`);
+            // Parse ignored devices list
+            const ignoredDevicesList = (this.config.ignoredDevices || '')
+                .split(',')
+                .map(name => name.trim())
+                .filter(name => name.length > 0);
+            if (ignoredDevicesList.length > 0) {
+                this.log.info(`Dispositifs ignorés configurés: ${ignoredDevicesList.join(', ')}`);
+            }
             // Traiter chaque dispositif
             for (const device of devices) {
+                const deviceName = device.friendlyName;
                 const displayCategories = device.displayCategories || [];
                 const capabilities = device.capabilities || [];
-                this.log.info(`Dispositif: ${device.friendlyName} (${displayCategories.join(', ')})`);
+                this.log.info(`Dispositif: ${deviceName} (${displayCategories.join(', ')})`);
+                // Skip ignored devices
+                if (ignoredDevicesList.includes(deviceName)) {
+                    this.log.info(`⏭️ Dispositif ignoré: ${deviceName}`);
+                    continue;
+                }
                 // Serrure
                 if (displayCategories.includes('LOCK_GENERIC') || displayCategories.includes('VIP_ACTUATOR')) {
                     if (capabilities.includes('PowerController')) {

@@ -10,19 +10,15 @@ export interface ComelitPlatformConfig {
   platform: string;
   name?: string;
   
-  // Méthode 1: Email + Password (prioritaire)
-  email?: string;
-  password?: string;
-  
-  // Méthode 2: Credentials manuels (utilisés si email/password absents)
-  token?: string;
-  deviceUuid?: string;
-  apartmentId?: string;
+  // Authentification (obligatoire)
+  email: string;
+  password: string;
   
   baseURL?: string;
   pollInterval?: number;
   lockIds?: string[];
   enableCamera?: boolean;
+  ignoredDevices?: string;
   videoConfig?: {
     maxWidth?: number;
     maxHeight?: number;
@@ -42,17 +38,9 @@ export interface ComelitPlatformConfig {
   };
 }
 
-export const DEFAULT_CONFIG = {
+export const DEFAULT_CONFIG: Partial<ComelitPlatformConfig> = {
   baseURL: 'https://api.comelitgroup.com/servicerest',
-  pollInterval: 30000, // 30 secondes
-  enableCamera: true, // Réactivé avec implémentation WebRTC
-  videoConfig: {
-    maxWidth: 1280,
-    maxHeight: 720,
-    maxFPS: 30,
-    maxBitrate: 300,
-    forceMax: false,
-    vcodec: 'libx264',
-    audio: true,
-  },
+  pollInterval: 10000,
+  enableCamera: true,
+  ignoredDevices: 'Actionneur Générique',
 };

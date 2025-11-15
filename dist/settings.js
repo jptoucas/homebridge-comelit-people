@@ -9,16 +9,8 @@ exports.PLATFORM_NAME = 'ComelitPeoplePlatform';
 exports.PLUGIN_NAME = 'homebridge-comelit-people';
 exports.DEFAULT_CONFIG = {
     baseURL: 'https://api.comelitgroup.com/servicerest',
-    pollInterval: 30000, // 30 secondes
-    enableCamera: true, // Réactivé avec implémentation WebRTC
-    videoConfig: {
-        maxWidth: 1280,
-        maxHeight: 720,
-        maxFPS: 30,
-        maxBitrate: 300,
-        forceMax: false,
-        vcodec: 'libx264',
-        audio: true,
-    },
+    pollInterval: 10000,
+    enableCamera: true,
+    ignoredDevices: 'Actionneur Générique',
 };
 //# sourceMappingURL=settings.js.map

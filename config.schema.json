@@ -8,42 +8,29 @@
     "type": "object",
     "properties": {
       "name": {
-        "title": "Nom",
+        "title": "Nom de la plateforme",
         "type": "string",
         "default": "Comelit People",
-        "required": true,
-        "description": "Nom de la plateforme dans Homebridge"
+        "required": true
       },
       "email": {
         "title": "Email Comelit",
         "type": "string",
-        "description": "Votre email de connexion Comelit (méthode recommandée). Si renseigné, le token sera automatiquement récupéré."
+        "format": "email",
+        "required": true,
+        "description": "Votre adresse email Comelit"
       },
       "password": {
         "title": "Mot de passe Comelit",
         "type": "string",
-        "description": "Votre mot de passe Comelit. Utilisé uniquement si email est renseigné."
-      },
-      "token": {
-        "title": "CCS Token (optionnel)",
-        "type": "string",
-        "description": "Token d'authentification Comelit (ccstoken). Ignoré si email/password sont fournis."
-      },
-      "deviceUuid": {
-        "title": "Device UUID (optionnel)",
-        "type": "string",
-        "description": "UUID du dispositif Comelit. Ignoré si email/password sont fournis."
-      },
-      "apartmentId": {
-        "title": "Apartment ID (optionnel)",
-        "type": "string",
-        "description": "Identifiant de l'appartement. Ignoré si email/password sont fournis."
+        "required": true,
+        "description": "Votre mot de passe Comelit"
       },
       "baseURL": {
-        "title": "URL de base API",
+        "title": "URL de base de l'API",
         "type": "string",
         "default": "https://api.comelitgroup.com/servicerest",
-        "description": "URL de base de l'API Comelit Group"
+        "readOnly": true
       },
       "pollInterval": {
         "title": "Intervalle de polling (ms)",
@@ -64,7 +51,13 @@
         "title": "Activer la caméra",
         "type": "boolean",
         "default": true,
-        "description": "Activer le support de streaming vidéo pour la sonnette/caméra"
+        "description": "Active le streaming vidéo WebRTC"
+      },
+      "ignoredDevices": {
+        "title": "Dispositifs ignorés",
+        "type": "string",
+        "default": "Actionneur Générique",
+        "description": "Noms des dispositifs à ignorer, séparés par des virgules (ex: Actionneur Générique, Device2)"
       },
       "videoConfig": {
         "title": "Configuration vidéo",
@@ -120,47 +113,30 @@
   },
   "layout": [
     {
-      "type": "fieldset",
+      "type": "section",
       "title": "🔐 Authentification Comelit",
-      "expandable": false,
-      "description": "Choisissez votre méthode d'authentification",
       "items": [
         "name",
         {
           "type": "help",
-          "helpvalue": "<h5>Méthode 1 : Email + Mot de passe (Recommandé)</h5><p>Le plugin récupérera automatiquement votre token et vos identifiants.</p>"
+          "helpvalue": "<p>Le plugin récupère automatiquement tous les identifiants nécessaires à partir de votre email et mot de passe.</p>"
         },
         "email",
         "password",
-        {
-          "type": "help",
-          "helpvalue": "<h5>Méthode 2 : Configuration manuelle</h5><p>Utilisez cette méthode uniquement si vous avez déjà un token.</p>"
-        },
-        "token",
-        "deviceUuid",
-        "apartmentId",
         "baseURL"
-      ]
     },
     {
-      "type": "fieldset",
-      "title": "Configuration des dispositifs",
+      "type": "section",
+      "title": "⚙️ Configuration",
       "expandable": true,
+      "expanded": false,
       "items": [
         "pollInterval",
+        "lockIds",
+        "enableCamera",
+        "ignoredDevices",
         {
-          "key": "lockIds",
-          "type": "array",
-          "items": {
-            "type": "string",
-            "placeholder": "SB100001.1"
-          }
-        },
-        "enableCamera"
-      ]
-    },
-    {
-      "type": "fieldset",
+          "type": "fieldset",
       "title": "Configuration vidéo avancée",
       "expandable": true,
       "items": [
