@@ -13,6 +13,8 @@ export declare class ComelitDoorbellAccessory implements CameraStreamingDelegate
     private endpointId;
     private pendingSessions;
     private ongoingSessions;
+    private cachedSnapshot?;
+    private snapshotRefreshTimer?;
     constructor(platform: ComelitPlatform, accessory: PlatformAccessory);
     /**
      * Configure la caméra
@@ -30,6 +32,13 @@ export declare class ComelitDoorbellAccessory implements CameraStreamingDelegate
      * Gère les snapshots (images fixes)
      */
     handleSnapshotRequest(request: SnapshotRequest, callback: SnapshotRequestCallback): Promise<void>;
+    /**
+     * Capture un snapshot depuis le flux WebRTC via FFmpeg
+     *
+     * NOTE: Pour l'instant génère un snapshot placeholder
+     * TODO: Implémenter la vraie capture depuis WebRTC une fois que les sessions temporaires seront optimisées
+     */
+    private captureSnapshot;
     /**
      * Prépare le stream vidéo
      */
@@ -67,5 +76,9 @@ export declare class ComelitDoorbellAccessory implements CameraStreamingDelegate
      * Arrête le streaming vidéo
      */
     private stopStream;
+    /**
+     * Nettoie les ressources lors de la suppression de l'accessoire
+     */
+    cleanup(): void;
 }
 //# sourceMappingURL=doorbell.d.ts.map

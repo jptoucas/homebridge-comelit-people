@@ -14,6 +14,7 @@ export interface ComelitPlatformConfig {
     lockIds?: string[];
     enableCamera?: boolean;
     ignoredDevices?: string;
+    snapshotRefreshInterval?: number;
     videoConfig?: {
         maxWidth?: number;
         maxHeight?: number;

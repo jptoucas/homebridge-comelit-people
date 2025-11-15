@@ -42,6 +42,10 @@ export class ComelitDoorbellAccessory implements CameraStreamingDelegate {
     udpSocket?: Socket;
     webrtcSessionId?: string;
   }> = new Map();
+  
+  // Cache du snapshot
+  private cachedSnapshot?: Buffer;
+  private snapshotRefreshTimer?: NodeJS.Timeout;
 
   constructor(
     private readonly platform: ComelitPlatform,
@@ -74,6 +78,27 @@ export class ComelitDoorbellAccessory implements CameraStreamingDelegate {
     // Configuration de la caméra si activée
     if (this.platform.config.enableCamera) {
       this.setupCamera();
+      
+      // Capturer le premier snapshot au démarrage
+      this.captureSnapshot().catch(err => 
+        this.platform.log.error('Erreur lors de la capture du snapshot initial:', err),
+      );
+      
+      // Configurer le rafraîchissement périodique si demandé
+      const refreshInterval = this.platform.config.snapshotRefreshInterval || 0;
+      if (refreshInterval > 0) {
+        this.platform.log.info(`📸 Snapshots activés: rafraîchissement toutes les ${refreshInterval}s`);
+        this.snapshotRefreshTimer = setInterval(
+          () => {
+            this.captureSnapshot().catch(err =>
+              this.platform.log.error('Erreur lors du rafraîchissement du snapshot:', err),
+            );
+          },
+          refreshInterval * 1000,
+        );
+      } else {
+        this.platform.log.info('📸 Snapshots: capture uniquement au démarrage');
+      }
     }
 
     // Polling pour détecter les sonneries
@@ -181,13 +206,81 @@ export class ComelitDoorbellAccessory implements CameraStreamingDelegate {
     this.platform.log.debug('Snapshot demandé:', request);
     
     try {
-      // TODO: Implémenter la capture de snapshot depuis Comelit
-      // Pour l'instant, retourner une erreur
-      callback(new Error('Snapshot non implémenté'));
+      // Retourner le snapshot en cache s'il existe
+      if (this.cachedSnapshot) {
+        callback(undefined, this.cachedSnapshot);
+      } else {
+        // Si pas de cache, capturer maintenant
+        this.platform.log.warn('Aucun snapshot en cache, capture en cours...');
+        const snapshot = await this.captureSnapshot();
+        callback(undefined, snapshot);
+      }
     } catch (error) {
       this.platform.log.error('Erreur lors de la capture du snapshot:', error);
       callback(error as Error);
     }
+  }
+
+  /**
+   * Capture un snapshot depuis le flux WebRTC via FFmpeg
+   * 
+   * NOTE: Pour l'instant génère un snapshot placeholder
+   * TODO: Implémenter la vraie capture depuis WebRTC une fois que les sessions temporaires seront optimisées
+   */
+  private async captureSnapshot(): Promise<Buffer> {
+    return new Promise<Buffer>((resolve, reject) => {
+      this.platform.log.debug('📸 Génération snapshot placeholder...');
+      
+      // Générer une image JPEG 640x480 grise avec texte (placeholder)
+      // En production, ceci devrait capturer depuis le flux WebRTC
+      const width = 640;
+      const height = 480;
+      
+      const ffmpegArgs = [
+        '-f', 'lavfi',
+        '-i', `color=gray:s=${width}x${height}`,
+        '-frames:v', '1',
+        '-f', 'image2',
+        '-vcodec', 'mjpeg',
+        '-q:v', '5',
+        'pipe:1',
+      ];
+      
+      const chunks: Buffer[] = [];
+      const ffmpegProcess = spawn('ffmpeg', ffmpegArgs);
+      
+      ffmpegProcess.stdout?.on('data', (chunk) => {
+        chunks.push(chunk);
+      });
+      
+      ffmpegProcess.stderr?.on('data', (data) => {
+        this.platform.log.debug('FFmpeg:', data.toString());
+      });
+      
+      ffmpegProcess.on('close', (code) => {
+        if (code === 0 && chunks.length > 0) {
+          const snapshot = Buffer.concat(chunks);
+          this.cachedSnapshot = snapshot;
+          this.platform.log.info(`✅ Snapshot capturé: ${(snapshot.length / 1024).toFixed(1)} KB (placeholder)`);
+          resolve(snapshot);
+        } else {
+          reject(new Error(`FFmpeg failed with code ${code}`));
+        }
+      });
+      
+      ffmpegProcess.on('error', (error) => {
+        this.platform.log.error('Erreur FFmpeg:', error);
+        reject(error);
+      });
+      
+      // Timeout de 5 secondes
+      setTimeout(() => {
+        if (ffmpegProcess && !ffmpegProcess.killed) {
+          ffmpegProcess.kill('SIGKILL');
+          reject(new Error('Timeout lors de la génération du snapshot'));
+        }
+      }, 5000);
+    });
   }
 
   /**
@@ -748,5 +841,15 @@ a=rtpmap:96 H264/90000`;
     }
 
     this.pendingSessions.delete(sessionId);
+  }
+
+  /**
+   * Nettoie les ressources lors de la suppression de l'accessoire
+   */
+  public cleanup(): void {
+    if (this.snapshotRefreshTimer) {
+      clearInterval(this.snapshotRefreshTimer);
+      this.platform.log.debug('Timer de rafraîchissement des snapshots arrêté');
+    }
   }
 }

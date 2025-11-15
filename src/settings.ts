@@ -19,6 +19,7 @@ export interface ComelitPlatformConfig {
   lockIds?: string[];
   enableCamera?: boolean;
   ignoredDevices?: string;
+  snapshotRefreshInterval?: number;
   videoConfig?: {
     maxWidth?: number;
     maxHeight?: number;
@@ -43,4 +44,5 @@ export const DEFAULT_CONFIG: Partial<ComelitPlatformConfig> = {
   pollInterval: 10000,
   enableCamera: true,
   ignoredDevices: 'Actionneur Générique',
+  snapshotRefreshInterval: 0,
 };

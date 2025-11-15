@@ -12,5 +12,6 @@ exports.DEFAULT_CONFIG = {
     pollInterval: 10000,
     enableCamera: true,
     ignoredDevices: 'Actionneur Générique',
+    snapshotRefreshInterval: 0,
 };
 //# sourceMappingURL=settings.js.map

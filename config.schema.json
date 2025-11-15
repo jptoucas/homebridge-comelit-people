@@ -59,6 +59,14 @@
         "default": "Actionneur Générique",
         "description": "Noms des dispositifs à ignorer, séparés par des virgules (ex: Actionneur Générique, Device2)"
       },
+      "snapshotRefreshInterval": {
+        "title": "Intervalle de rafraîchissement des snapshots (secondes)",
+        "type": "integer",
+        "default": 0,
+        "minimum": 0,
+        "maximum": 3600,
+        "description": "Fréquence de capture des snapshots en secondes. 0 = capture uniquement au démarrage. Recommandé: 300 (5 min) ou 0 pour économiser les ressources."
+      },
       "videoConfig": {
         "title": "Configuration vidéo",
         "type": "object",
@@ -136,6 +144,7 @@
         "lockIds",
         "enableCamera",
         "ignoredDevices",
+        "snapshotRefreshInterval",
         {
           "type": "fieldset",
           "title": "Configuration vidéo avancée",
