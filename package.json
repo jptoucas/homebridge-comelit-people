@@ -1,7 +1,7 @@
 {
   "name": "homebridge-comelit-people",
   "displayName": "Comelit People",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Plugin Homebridge pour le système d'interphonie Comelit - Contrôle de serrure, sonnette et caméra via l'API Comelit Group",
   "license": "MIT",
   "main": "dist/index.js",
