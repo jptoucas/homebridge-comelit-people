@@ -8,6 +8,8 @@ export declare class ComelitLockAccessory {
     private readonly accessory;
     private service;
     private endpointId;
+    private lastUnlockTime;
+    private readonly unlockCooldown;
     constructor(platform: ComelitPlatform, accessory: PlatformAccessory);
     /**
      * Obtient l'état actuel de la serrure

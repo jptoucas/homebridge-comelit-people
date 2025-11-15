@@ -7,6 +7,8 @@ import { ComelitPlatform } from '../platform';
 export class ComelitLockAccessory {
   private service: Service;
   private endpointId: string;
+  private lastUnlockTime = 0;
+  private readonly unlockCooldown = 3000; // 3 secondes entre chaque déverrouillage
 
   constructor(
     private readonly platform: ComelitPlatform,
@@ -69,6 +71,14 @@ export class ComelitLockAccessory {
     const targetState = value as number;
 
     if (targetState === this.platform.Characteristic.LockTargetState.UNSECURED) {
+      // Protection contre les appels multiples
+      const now = Date.now();
+      if (now - this.lastUnlockTime < this.unlockCooldown) {
+        this.platform.log.warn('⚠️ Déverrouillage ignoré (trop rapide, cooldown actif)');
+        return;
+      }
+      this.lastUnlockTime = now;
+
       this.platform.log.info('🔓 Déverrouillage de la porte:', this.accessory.context.device.friendlyName);
 
       try {

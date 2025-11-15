@@ -8,6 +8,8 @@ class ComelitLockAccessory {
     constructor(platform, accessory) {
         this.platform = platform;
         this.accessory = accessory;
+        this.lastUnlockTime = 0;
+        this.unlockCooldown = 3000; // 3 secondes entre chaque déverrouillage
         // Utiliser l'endpoint ID complet fourni par discovery
         // Format: _DA_{apartmentId}_{deviceUuid}_VIP#OD#{lockId}
         this.endpointId = accessory.context.device.endpointId;
@@ -51,6 +53,13 @@ class ComelitLockAccessory {
     async setLockTargetState(value) {
         const targetState = value;
         if (targetState === this.platform.Characteristic.LockTargetState.UNSECURED) {
+            // Protection contre les appels multiples
+            const now = Date.now();
+            if (now - this.lastUnlockTime < this.unlockCooldown) {
+                this.platform.log.warn('⚠️ Déverrouillage ignoré (trop rapide, cooldown actif)');
+                return;
+            }
+            this.lastUnlockTime = now;
             this.platform.log.info('🔓 Déverrouillage de la porte:', this.accessory.context.device.friendlyName);
             try {
                 // Appeler l'API pour déverrouiller avec l'endpoint ID complet
