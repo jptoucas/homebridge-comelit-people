@@ -124,6 +124,7 @@
         "email",
         "password",
         "baseURL"
+      ]
     },
     {
       "type": "section",
@@ -137,16 +138,18 @@
         "ignoredDevices",
         {
           "type": "fieldset",
-      "title": "Configuration vidéo avancée",
-      "expandable": true,
-      "items": [
-        "videoConfig.maxWidth",
-        "videoConfig.maxHeight",
-        "videoConfig.maxFPS",
-        "videoConfig.maxBitrate",
-        "videoConfig.forceMax",
-        "videoConfig.vcodec",
-        "videoConfig.audio"
+          "title": "Configuration vidéo avancée",
+          "expandable": true,
+          "items": [
+            "videoConfig.maxWidth",
+            "videoConfig.maxHeight",
+            "videoConfig.maxFPS",
+            "videoConfig.maxBitrate",
+            "videoConfig.forceMax",
+            "videoConfig.vcodec",
+            "videoConfig.audio"
+          ]
+        }
       ]
     }
   ]
